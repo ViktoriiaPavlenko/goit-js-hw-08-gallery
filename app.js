@@ -64,19 +64,16 @@ const galleryItems = [
   },
 ];
 
-// 1.Создание и рендер разметки по массиву данных galleryItems из 
-// app.js и предоставленному шаблону.
 const galleryRef = document.querySelector('.js-gallery')
 const lightboxRef = document.querySelector('.js-lightbox')
 const overlayRef = document.querySelector('.lightbox__overlay')
-const lightboxContentRef = document.querySelector('.lightbox__content')
 const imageRef = document.querySelector('.lightbox__image')
 const closeButtonRef = document.querySelector('.lightbox__button')
 
-const galleryList = createList(galleryItems)
+const galleryList = createList()
 galleryRef.insertAdjacentHTML('beforeend', galleryList);
 
-function createList(images) {
+function createList() {
   return galleryItems
     .map(({ preview, original, description }) => {
       return `
@@ -89,50 +86,61 @@ function createList(images) {
     .join('');
 }
 
-// 2.Реализация делегирования на галерее ul.js-gallery 
-// и получение url большого изображения.
-galleryRef.addEventListener('click', onClick)
-
-function onClick (evt) {
-  if (!evt.target.classList.contains('gallery__image')) {
-    return;
-  }
-}
-
-// 3.Открытие модального окна по клику на элементе галереи.
 galleryRef.addEventListener('click', onOpenModal);
 
 function onOpenModal(event) {
   event.preventDefault();
+  
   if (event.target.nodeName !== 'IMG') {
     return;
   }
-  lightboxRef.classList.add('is-open');
 
-  // 4.Подмена значения атрибута src элемента img.lightbox__image.
+  lightboxRef.classList.add('is-open');
   imageRef.src = event.target.dataset.source;
+  imageRef.alt = event.target.alt;
+
+  window.addEventListener('keydown', onEscKeyPress);
+  window.addEventListener('keydown', handleKeydown);
 }
 
-// 5.Закрытие модального окна по клику на кнопку 
-// button[data - action= "close-lightbox"].
 closeButtonRef.addEventListener('click', onCloseModal);
+overlayRef.addEventListener('click', onCloseModal);
 
 function onCloseModal(event) {
   lightboxRef.classList.remove('is-open');
+  imageRef.src = ' ';
+  imageRef.alt = ' ';
 
-  // 6.Очистка значения атрибута src элемента img.lightbox__image. 
-  //   Это необходимо для того, чтобы при следующем открытии модального 
-  //   окна, пока грузится изображение, мы не видели предыдущее.
-  imageRef.src = '';
+  window.removeEventListener('keydown', onEscKeyPress);
+  window.removeEventListener('keydown', handleKeydown);
 }
 
+function onEscKeyPress(event) {
+  if (event.code === 'Escape') {
+    onCloseModal();
+  }
+}
 
+function handleKeydown(event) {
+  let currentIndex = 0;
+  galleryItems.forEach(img => {
+    if (img.original === imageRef.src) {
+      currentIndex = galleryItems.indexOf(img);
+    }
+  });
 
-
-// 1.Закрытие модального окна по клику на div.lightbox__overlay.
-// 2.Закрытие модального окна по нажатию клавиши ESC.
-// 3.Пролистывание изображений галереи в открытом модальном 
-//   окне клавишами "влево" и "вправо".
-
-
-
+  let nextIndex = currentIndex + 1;
+  let previousIndex = currentIndex - 1;
+  if (event.code === 'ArrowRight') {
+    if (nextIndex >= galleryItems.length) {
+      nextIndex = 0;
+    }
+    imageRef.src = galleryItems[nextIndex].original;
+  }
+  if (event.code === 'ArrowLeft') {
+    if (previousIndex < 0) {
+      previousIndex = galleryItems.length - 1;
+    }
+    imageRef.src = galleryItems[previousIndex].original;
+  }
+}
