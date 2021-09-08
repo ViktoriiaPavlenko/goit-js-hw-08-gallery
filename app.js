@@ -86,6 +86,11 @@ function createList() {
     .join('');
 }
 
+function setImageAttr(src, alt) {
+  imageRef.setAttribute("src", src);
+  imageRef.setAttribute("alt", alt);
+}
+
 galleryRef.addEventListener('click', onOpenModal);
 
 function onOpenModal(event) {
@@ -96,8 +101,11 @@ function onOpenModal(event) {
   }
 
   lightboxRef.classList.add('is-open');
-  imageRef.src = event.target.dataset.source;
-  imageRef.alt = event.target.alt;
+
+  setImageAttr(
+    event.target.dataset.source,
+    event.target.alt
+  );
 
   window.addEventListener('keydown', onEscKeyPress);
   window.addEventListener('keydown', handleKeydown);
@@ -108,8 +116,8 @@ overlayRef.addEventListener('click', onCloseModal);
 
 function onCloseModal(event) {
   lightboxRef.classList.remove('is-open');
-  imageRef.src = ' ';
-  imageRef.alt = ' ';
+  
+  setImageAttr(" ", "");
 
   window.removeEventListener('keydown', onEscKeyPress);
   window.removeEventListener('keydown', handleKeydown);
@@ -123,12 +131,12 @@ function onEscKeyPress(event) {
 
 function handleKeydown(event) {
   let currentIndex = 0;
-  galleryItems.forEach(img => {
+  galleryItems.findIndex(img => {
     if (img.original === imageRef.src) {
       currentIndex = galleryItems.indexOf(img);
     }
   });
-
+  
   let nextIndex = currentIndex + 1;
   let previousIndex = currentIndex - 1;
   if (event.code === 'ArrowRight') {
