@@ -130,12 +130,9 @@ function onEscKeyPress(event) {
 }
 
 function handleKeydown(event) {
-  let currentIndex = 0;
-  galleryItems.findIndex(img => {
-    if (img.original === imageRef.src) {
-      currentIndex = galleryItems.indexOf(img);
-    }
-  });
+  let currentIndex = galleryItems.findIndex(
+    img => img.original === imageRef.src,
+  );
   
   let nextIndex = currentIndex + 1;
   let previousIndex = currentIndex - 1;
